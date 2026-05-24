@@ -1,18 +1,17 @@
-import { Controller, Post, Get, Body, Headers, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Get, Body, Req, UseGuards, BadRequestException } from '@nestjs/common';
 import { WalletService } from '../../application/wallet.service';
-
-export class CreateWalletDto {
-  userId: string;
-}
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 
 @Controller('wallets')
 export class WalletsController {
   constructor(private readonly walletService: WalletService) {}
 
   @Post()
-  async create(@Body() body: CreateWalletDto) {
-    if (!body.userId) throw new BadRequestException('userId is required');
-    const wallet = await this.walletService.createWallet(body.userId);
+  @UseGuards(JwtAuthGuard)
+  async create(@Req() req: any) {
+    const userId = req.user?.id;
+    if (!userId) throw new BadRequestException('User ID not found in token');
+    const wallet = await this.walletService.createWallet(userId);
     return {
       id: wallet.id,
       userId: wallet.userId,
@@ -22,8 +21,10 @@ export class WalletsController {
   }
 
   @Get('me')
-  async getMe(@Headers('x-user-id') userId: string) {
-    if (!userId) throw new BadRequestException('x-user-id header is required');
+  @UseGuards(JwtAuthGuard)
+  async getMe(@Req() req: any) {
+    const userId = req.user?.id;
+    if (!userId) throw new BadRequestException('User ID not found in token');
     const wallet = await this.walletService.getWallet(userId);
     return {
       id: wallet.id,

@@ -1,0 +1,56 @@
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { GameEngineService } from './game-engine.service';
+import { RabbitMQPublisherService } from '../infrastructure/rabbitmq/rabbitmq-publisher.service';
+import { EntityManager } from '@mikro-orm/postgresql';
+import { Bet } from '../domain/bet.entity';
+
+@Injectable()
+export class GameService {
+  constructor(
+    private readonly gameEngine: GameEngineService,
+    private readonly rabbitPublisher: RabbitMQPublisherService,
+    private readonly em: EntityManager,
+  ) {}
+
+  async placeBet(userId: string, amount: number) {
+    const round = this.gameEngine.getCurrentRound();
+    if (!round || !round.isAcceptingBets()) {
+      throw new BadRequestException('Round is not accepting bets');
+    }
+
+    const bet = Bet.create(round.id, userId, amount);
+    await this.em.persistAndFlush(bet);
+
+    this.rabbitPublisher.publishBetPlaced({ userId, amount });
+
+    return { success: true, betId: bet.id };
+  }
+
+  async cashOut(userId: string) {
+    const round = this.gameEngine.getCurrentRound();
+    const currentMultiplier = this.gameEngine.getCurrentMultiplier();
+
+    if (!round || !round.canCashOut(currentMultiplier)) {
+      throw new BadRequestException('Cannot cash out right now');
+    }
+
+    const bet = await this.em.findOne(Bet, { roundId: round.id, userId });
+    if (!bet) {
+      throw new BadRequestException('Bet not found');
+    }
+
+    bet.cashOut(currentMultiplier);
+    await this.em.flush();
+
+    const amountWon = Math.floor(bet.amount * currentMultiplier);
+
+    this.rabbitPublisher.publishBetWon({
+      userId,
+      gameId: round.id,
+      multiplier: currentMultiplier,
+      amount: amountWon,
+    });
+
+    return { success: true, multiplier: currentMultiplier, amountWon };
+  }
+}
