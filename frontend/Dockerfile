@@ -10,10 +10,12 @@ COPY services/wallets/package.json ./services/wallets/
 
 RUN bun install
 
-COPY services/games/ ./services/games/
+COPY frontend/ ./frontend/
 
-WORKDIR /app/services/games
+WORKDIR /app/frontend
 
-EXPOSE 4001
+RUN bun run build
 
-CMD ["bun", "run", "src/main.ts"]
+EXPOSE 3000
+
+CMD ["bun", "run", "start"]
