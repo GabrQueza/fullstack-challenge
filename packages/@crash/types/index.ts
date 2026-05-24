@@ -22,4 +22,5 @@ export interface CashOutPayload {
   userId: string;
   gameId: string;
   multiplier: number;
+  amount: number;
 }
