@@ -19,7 +19,7 @@ export class GameService {
     }
 
     const bet = Bet.create(round.id, userId, amount);
-    await this.em.persistAndFlush(bet);
+    await this.em.persist(bet).flush();
 
     this.rabbitPublisher.publishBetPlaced({ userId, amount });
 

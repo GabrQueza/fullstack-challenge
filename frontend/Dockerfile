@@ -16,6 +16,9 @@ WORKDIR /app/frontend
 
 RUN bun run build
 
+ENV NEXTAUTH_URL=http://localhost:3000
+ENV NEXTAUTH_SECRET=crash-game-secret-123
+
 EXPOSE 3000
 
 CMD ["bun", "run", "start"]

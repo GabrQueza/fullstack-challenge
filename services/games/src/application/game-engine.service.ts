@@ -35,7 +35,7 @@ export class GameEngineService implements OnModuleInit {
     this.currentMultiplier = 1.0;
 
     const em = this.em.fork();
-    await em.persistAndFlush(this.currentRound);
+    await em.persist(this.currentRound).flush();
 
     // 10 seconds betting window
     const BETTING_TIME_MS = 10000;
