@@ -1,13 +1,25 @@
 import { WebSocketGateway, WebSocketServer, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
-@WebSocketGateway({ cors: { origin: '*' } })
+@WebSocketGateway({ cors: { origin: 'http://localhost:3000', credentials: true } })
 export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
+  private stateProvider?: () => any;
+
+  setStateProvider(provider: () => any) {
+    this.stateProvider = provider;
+  }
+
   handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
+    if (this.stateProvider) {
+      const state = this.stateProvider();
+      if (state) {
+        client.emit('game.state', state);
+      }
+    }
   }
 
   handleDisconnect(client: Socket) {
@@ -28,5 +40,9 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   emitBetPlaced(data: any) {
     this.server.emit('game.betPlaced', data);
+  }
+
+  emitBetWon(data: any) {
+    this.server.emit('game.betWon', data);
   }
 }

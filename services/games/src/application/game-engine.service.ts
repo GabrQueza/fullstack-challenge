@@ -13,7 +13,18 @@ export class GameEngineService implements OnModuleInit {
   constructor(
     private readonly gateway: GameGateway,
     private readonly em: EntityManager,
-  ) {}
+  ) {
+    this.gateway.setStateProvider(() => {
+      const round = this.getCurrentRound();
+      if (!round) return null;
+      return {
+        status: round.status,
+        roundId: round.id,
+        serverSeedHash: round.serverSeedHash,
+        multiplier: this.getCurrentMultiplier(),
+      };
+    });
+  }
 
   onModuleInit() {
     setTimeout(() => this.startEngine(), 1000);
@@ -35,7 +46,7 @@ export class GameEngineService implements OnModuleInit {
     this.currentMultiplier = 1.0;
 
     const em = this.em.fork();
-    await em.persistAndFlush(this.currentRound);
+    await em.persist(this.currentRound).flush();
 
     // 10 seconds betting window
     const BETTING_TIME_MS = 10000;

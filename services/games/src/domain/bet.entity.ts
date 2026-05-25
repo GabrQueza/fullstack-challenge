@@ -22,7 +22,7 @@ export class Bet {
 
   cashOut(multiplier: number): void {
     if (this.cashOutMultiplier) {
-      throw new Error('Already cashed out');
+      return; // Handled in service
     }
     this.cashOutMultiplier = multiplier;
   }
