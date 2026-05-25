@@ -6,8 +6,20 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
+  private stateProvider?: () => any;
+
+  setStateProvider(provider: () => any) {
+    this.stateProvider = provider;
+  }
+
   handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
+    if (this.stateProvider) {
+      const state = this.stateProvider();
+      if (state) {
+        client.emit('game.state', state);
+      }
+    }
   }
 
   handleDisconnect(client: Socket) {

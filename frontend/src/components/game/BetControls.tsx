@@ -17,6 +17,7 @@ export function BetControls() {
   const status = useGameStore((s) => s.status);
   const multiplier = useGameStore((s) => s.multiplier);
   const bets = useGameStore((s) => s.bets);
+  const addBet = useGameStore((s) => s.addBet);
   
   const userId = session?.user?.id;
   const activeBet = bets.find(b => b.userId === userId);
@@ -25,14 +26,14 @@ export function BetControls() {
   const hasCashedOut = !!activeBet?.cashOutMultiplier;
 
   const handleBet = async () => {
-    if (!session) return signIn("keycloak");
+    if (!session || !userId) return signIn("keycloak");
     try {
       setLoading(true);
-      await axios.post("/games/bet", { amount });
-      // Here you could trigger a toast notification for success
-    } catch (error) {
-      console.error(error);
-      // Here you could trigger a toast notification for error
+      const amountInCents = Math.round(amount * 100);
+      await axios.post("/games/bet", { amount: amountInCents });
+      addBet({ userId, amount: amountInCents });
+    } catch (error: any) {
+      console.error(error.response?.data);
     } finally {
       setLoading(false);
     }
@@ -42,8 +43,8 @@ export function BetControls() {
     try {
       setLoading(true);
       await axios.post("/games/bet/cashout");
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      console.error(error.response?.data);
     } finally {
       setLoading(false);
     }
@@ -85,7 +86,7 @@ export function BetControls() {
             className="w-full sm:w-48 py-4 bg-orange-500 hover:bg-orange-400 disabled:opacity-50 text-white font-bold rounded-lg transition-all active:scale-95 flex flex-col items-center justify-center leading-none gap-1"
           >
             <span className="text-sm">SACAR</span>
-            <span className="text-xl tabular-nums">R$ {(activeBet.amount * multiplier).toFixed(2)}</span>
+            <span className="text-xl tabular-nums">R$ {((activeBet.amount / 100) * multiplier).toFixed(2)}</span>
           </button>
         ) : (
           <button 
@@ -93,7 +94,7 @@ export function BetControls() {
             className="w-full sm:w-48 py-4 bg-zinc-800 text-emerald-500 font-bold rounded-lg flex flex-col items-center justify-center leading-none gap-1"
           >
             <span className="text-sm">SAQUE REALIZADO</span>
-            <span className="text-xl tabular-nums">R$ {(activeBet.amount * (activeBet.cashOutMultiplier || 1)).toFixed(2)}</span>
+            <span className="text-xl tabular-nums">R$ {((activeBet.amount / 100) * (activeBet.cashOutMultiplier || 1)).toFixed(2)}</span>
           </button>
         )}
       </div>

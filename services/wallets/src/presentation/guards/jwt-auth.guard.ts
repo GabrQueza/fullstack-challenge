@@ -1,9 +1,28 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
+import jwksClient from 'jwks-rsa';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
-  canActivate(context: ExecutionContext): boolean {
+  private client: jwksClient.JwksClient;
+
+  constructor() {
+    this.client = jwksClient({
+      jwksUri: 'http://keycloak:8080/realms/crash-game/protocol/openid-connect/certs'
+    });
+  }
+
+  private getKey: jwt.GetPublicKeyOrSecret = (header, callback) => {
+    this.client.getSigningKey(header.kid, (err, key) => {
+      if (err || !key) {
+        return callback(err || new Error('No signing key found'));
+      }
+      const signingKey = key.getPublicKey();
+      callback(null, signingKey);
+    });
+  };
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const authHeader = request.headers.authorization;
 
@@ -14,20 +33,19 @@ export class JwtAuthGuard implements CanActivate {
     const token = authHeader.split(' ')[1];
 
     try {
-      // Em produção, isso deve ser a chave pública (RS256) do Realm do Keycloak
-      // Lida a partir do process.env.KEYCLOAK_PUBLIC_KEY
-      const secretOrPublicKey = process.env.KEYCLOAK_PUBLIC_KEY || 'development-secret-key';
-      
-      // O método verify valida a assinatura criptográfica e a expiração do token
-      const payload = jwt.verify(token, secretOrPublicKey, {
-        algorithms: process.env.KEYCLOAK_PUBLIC_KEY ? ['RS256'] : ['HS256', 'RS256'],
-      }) as jwt.JwtPayload;
+      const payload = await new Promise<jwt.JwtPayload>((resolve, reject) => {
+        jwt.verify(token, this.getKey, { algorithms: ['RS256'] }, (err, decoded) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(decoded as jwt.JwtPayload);
+        });
+      });
       
       if (!payload.sub) {
         throw new UnauthorizedException('Token does not contain a subject (sub) claim');
       }
 
-      // Injeta o ID do usuário (sub) no objeto da requisição
       request.user = { id: payload.sub };
       return true;
     } catch (err) {

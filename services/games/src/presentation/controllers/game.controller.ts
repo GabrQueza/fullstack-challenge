@@ -19,9 +19,13 @@ export class GameController {
   @Post('bet')
   @UseGuards(JwtAuthGuard)
   async placeBet(@Req() req: any, @Body() body: PlaceBetDto) {
+    console.log('--- NEW BET REQUEST ---');
+    console.log('User:', req.user);
+    console.log('Body:', body);
+    
     const userId = req.user?.id;
     if (!userId) throw new BadRequestException('User ID not found in token');
-    if (!body.amount || body.amount <= 0) throw new BadRequestException('Valid amount is required');
+    if (!Number.isInteger(body.amount) || body.amount <= 0) throw new BadRequestException('Valid amount is required (must be positive integer in cents)');
 
     return this.gameService.placeBet(userId, body.amount);
   }

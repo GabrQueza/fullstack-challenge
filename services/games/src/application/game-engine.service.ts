@@ -13,7 +13,18 @@ export class GameEngineService implements OnModuleInit {
   constructor(
     private readonly gateway: GameGateway,
     private readonly em: EntityManager,
-  ) {}
+  ) {
+    this.gateway.setStateProvider(() => {
+      const round = this.getCurrentRound();
+      if (!round) return null;
+      return {
+        status: round.status,
+        roundId: round.id,
+        serverSeedHash: round.serverSeedHash,
+        multiplier: this.getCurrentMultiplier(),
+      };
+    });
+  }
 
   onModuleInit() {
     setTimeout(() => this.startEngine(), 1000);
