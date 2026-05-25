@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useAxiosAuth } from "../../hooks/useAxiosAuth";
 import { useSession } from "next-auth/react";
+import { MyBetsModal } from "./MyBetsModal";
 
 export function Header() {
   const axios = useAxiosAuth();
@@ -25,6 +26,7 @@ export function Header() {
       
       {session && (
         <div className="flex items-center gap-4">
+          <MyBetsModal />
           <div className="flex flex-col items-end">
             <span className="text-xs text-zinc-400 font-semibold">{session.user?.name || 'Jogador'}</span>
             {isLoading ? (
