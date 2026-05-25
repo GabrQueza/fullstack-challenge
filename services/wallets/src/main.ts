@@ -21,7 +21,7 @@ async function bootstrap(): Promise<void> {
 
   // Auto-create/update database schema
   const orm = app.get(MikroORM);
-  await orm.schema.updateSchema();
+  await orm.schema.update();
 
   await app.startAllMicroservices();
   

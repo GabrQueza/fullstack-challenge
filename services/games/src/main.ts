@@ -9,7 +9,7 @@ async function bootstrap(): Promise<void> {
 
   // Auto-create/update database schema
   const orm = app.get(MikroORM);
-  await orm.schema.updateSchema();
+  await orm.schema.update();
 
   const port = process.env.PORT;
   await app.listen(port, "0.0.0.0");

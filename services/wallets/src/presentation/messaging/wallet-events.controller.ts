@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { EventPattern, Payload, Ctx, RmqContext } from '@nestjs/microservices';
 import { WalletService } from '../../application/wallet.service';
-import { PlaceBetPayload, CashOutPayload } from '@crash/types';
+import type { PlaceBetPayload, CashOutPayload } from '@crash/types';
 import { InsufficientBalanceException } from '../../domain/exceptions/insufficient-balance.exception';
 
 @Controller()

@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { PlaceBetPayload, CashOutPayload } from '@crash/types';
+import type { PlaceBetPayload, CashOutPayload } from '@crash/types';
 
 @Injectable()
 export class RabbitMQPublisherService {

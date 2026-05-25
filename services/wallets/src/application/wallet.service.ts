@@ -1,5 +1,6 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
-import { IWalletRepository, WALLET_REPOSITORY } from '../domain/wallet.repository.interface';
+import type { IWalletRepository } from '../domain/wallet.repository.interface';
+import { WALLET_REPOSITORY } from '../domain/wallet.repository.interface';
 import { Wallet } from '../domain/wallet.entity';
 import { InsufficientBalanceException } from '../domain/exceptions/insufficient-balance.exception';
 

@@ -2,7 +2,7 @@ FROM oven/bun:1-alpine
 
 WORKDIR /app
 
-COPY package.json ./
+COPY package.json bun.lockb* ./
 COPY packages/ ./packages/
 COPY frontend/package.json ./frontend/
 COPY services/games/package.json ./services/games/
