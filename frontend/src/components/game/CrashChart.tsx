@@ -1,12 +1,26 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGameStore } from "../../store/useGameStore";
 
 export function CrashChart() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const status = useGameStore((s) => s.status);
   const multiplier = useGameStore((s) => s.multiplier);
+  const initialTimeRemaining = useGameStore((s) => s.timeRemaining);
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (status === "BETTING" && initialTimeRemaining) {
+      setTimeLeft(initialTimeRemaining);
+      const interval = setInterval(() => {
+        setTimeLeft((prev) => (prev !== null && prev > 100 ? prev - 100 : 0));
+      }, 100);
+      return () => clearInterval(interval);
+    } else {
+      setTimeLeft(null);
+    }
+  }, [status, initialTimeRemaining]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -89,8 +103,15 @@ export function CrashChart() {
       
       <div className="relative z-10 flex flex-col items-center pointer-events-none">
         {status === "BETTING" && (
-          <div className="text-zinc-400 text-2xl animate-pulse font-mono mb-2">
-            PREPARANDO RODADA...
+          <div className="flex flex-col items-center mb-2">
+            <div className="text-zinc-400 text-lg uppercase tracking-widest font-semibold">
+              PREPARANDO RODADA
+            </div>
+            {timeLeft !== null && (
+              <div className="text-emerald-400 text-4xl font-black tabular-nums font-mono mt-1">
+                {(timeLeft / 1000).toFixed(1)}s
+              </div>
+            )}
           </div>
         )}
         <div 

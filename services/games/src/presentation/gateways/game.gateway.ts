@@ -41,4 +41,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   emitBetPlaced(data: any) {
     this.server.emit('game.betPlaced', data);
   }
+
+  emitBetWon(data: any) {
+    this.server.emit('game.betWon', data);
+  }
 }

@@ -36,7 +36,7 @@ export function BetsSidebar() {
             </div>
             
             <div className="flex flex-col items-end">
-              <span className="text-zinc-100 font-mono">R$ {bet.amount.toFixed(2)}</span>
+              <span className="text-zinc-100 font-mono">R$ {(bet.amount / 100).toFixed(2)}</span>
               {bet.cashOutMultiplier && (
                 <span className="text-emerald-500 font-bold font-mono text-xs">
                   {bet.cashOutMultiplier.toFixed(2)}x
@@ -55,7 +55,7 @@ export function BetsSidebar() {
 
       <div className="p-4 border-t border-zinc-800 bg-zinc-950/50 flex justify-between items-center">
         <span className="text-sm font-semibold text-zinc-400">Total Acumulado</span>
-        <span className="text-lg font-black text-white tabular-nums">R$ {totalBets.toFixed(2)}</span>
+        <span className="text-lg font-black text-white tabular-nums">R$ {(totalBets / 100).toFixed(2)}</span>
       </div>
     </div>
   );

@@ -36,7 +36,12 @@ export class GameController {
     const userId = req.user?.id;
     if (!userId) throw new BadRequestException('User ID not found in token');
 
-    return this.gameService.cashOut(userId);
+    try {
+      return await this.gameService.cashOut(userId);
+    } catch (error) {
+      console.error('CASHOUT ERROR:', error);
+      throw error;
+    }
   }
 
   @Get('rounds/:roundId/verify')
