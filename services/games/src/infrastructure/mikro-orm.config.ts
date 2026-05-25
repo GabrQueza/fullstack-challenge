@@ -8,6 +8,7 @@ const config: Options = {
   entities: [RoundSchema, BetSchema],
   debug: process.env.NODE_ENV !== 'production',
   extensions: [SchemaGenerator],
+  allowGlobalContext: true,
 };
 
 export default config;

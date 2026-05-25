@@ -4,10 +4,12 @@ import { useState } from "react";
 import { useGameStore } from "../../store/useGameStore";
 import { useAxiosAuth } from "../../hooks/useAxiosAuth";
 import { useSession, signIn } from "next-auth/react";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function BetControls() {
   const { data: session, status: authStatus } = useSession();
   const axios = useAxiosAuth();
+  const queryClient = useQueryClient();
   
   const [amount, setAmount] = useState(10);
   const [loading, setLoading] = useState(false);
@@ -32,6 +34,7 @@ export function BetControls() {
       const amountInCents = Math.round(amount * 100);
       await axios.post("/games/bet", { amount: amountInCents });
       addBet({ userId, amount: amountInCents });
+      queryClient.invalidateQueries({ queryKey: ['wallet'] });
     } catch (error: any) {
       console.error(error.response?.data);
     } finally {
