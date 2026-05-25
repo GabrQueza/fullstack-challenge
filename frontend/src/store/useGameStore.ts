@@ -29,10 +29,20 @@ export const useGameStore = create<GameStore>((set) => ({
   timeRemaining: null,
   crashPoint: null,
   bets: [],
-  setGameState: (state) => set((prev) => ({ ...prev, ...state })),
+  setGameState: (state) => set((prev) => {
+    if (state.status === 'BETTING' && prev.status !== 'BETTING') {
+      return { ...prev, ...state, bets: [] };
+    }
+    return { ...prev, ...state };
+  }),
   setTick: (multiplier) => set({ multiplier }),
   setCrash: (crashPoint) => set({ status: 'CRASHED', crashPoint, multiplier: crashPoint }),
-  addBet: (bet) => set((prev) => ({ bets: [...prev.bets, bet] })),
+  addBet: (bet) => set((prev) => {
+    if (prev.bets.some(b => b.userId === bet.userId)) {
+      return prev;
+    }
+    return { bets: [...prev.bets, bet] };
+  }),
   updateBet: (userId, multiplier) => set((prev) => ({
     bets: prev.bets.map(b => b.userId === userId ? { ...b, cashOutMultiplier: multiplier } : b)
   }))

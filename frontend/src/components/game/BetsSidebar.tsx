@@ -5,8 +5,12 @@ import { useGameStore } from "../../store/useGameStore";
 export function BetsSidebar() {
   const bets = useGameStore((s) => s.bets);
   
-  // Sort bets so cashed out appear at top, or just keep chronological
-  const totalBets = bets.reduce((acc, b) => acc + b.amount, 0);
+  const totalBets = bets.reduce((acc, b) => {
+    if (b.cashOutMultiplier) {
+      return acc + (b.amount * b.cashOutMultiplier);
+    }
+    return acc + b.amount;
+  }, 0);
 
   return (
     <div className="w-full lg:w-80 h-[500px] lg:h-auto bg-zinc-900 border border-zinc-800 rounded-xl flex flex-col overflow-hidden">
@@ -21,7 +25,9 @@ export function BetsSidebar() {
       </div>
 
       <div className="flex-1 overflow-y-auto p-2 space-y-1">
-        {bets.map((bet, i) => (
+        {bets.map((bet, i) => {
+          const displayAmount = bet.cashOutMultiplier ? bet.amount * bet.cashOutMultiplier : bet.amount;
+          return (
           <div 
             key={`${bet.userId}-${i}`} 
             className={`flex justify-between items-center p-2 rounded text-sm transition-colors ${
@@ -36,7 +42,7 @@ export function BetsSidebar() {
             </div>
             
             <div className="flex flex-col items-end">
-              <span className="text-zinc-100 font-mono">R$ {(bet.amount / 100).toFixed(2)}</span>
+              <span className="text-zinc-100 font-mono">R$ {(displayAmount / 100).toFixed(2)}</span>
               {bet.cashOutMultiplier && (
                 <span className="text-emerald-500 font-bold font-mono text-xs">
                   {bet.cashOutMultiplier.toFixed(2)}x
@@ -44,7 +50,7 @@ export function BetsSidebar() {
               )}
             </div>
           </div>
-        ))}
+        )})}
 
         {bets.length === 0 && (
           <div className="h-full flex items-center justify-center text-zinc-600 text-sm p-8 text-center">
