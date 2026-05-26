@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useGameStore } from "../../store/useGameStore";
+import { useAudioEffects } from "../../hooks/useAudioEffects";
 
 export function CrashChart() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -10,6 +11,13 @@ export function CrashChart() {
   const initialTimeRemaining = useGameStore((s) => s.timeRemaining);
   const serverSeedHash = useGameStore((s) => s.serverSeedHash);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const { playCrashSound } = useAudioEffects();
+
+  useEffect(() => {
+    if (status === "CRASHED") {
+      playCrashSound();
+    }
+  }, [status, playCrashSound]);
 
   useEffect(() => {
     if (status === "BETTING" && initialTimeRemaining) {

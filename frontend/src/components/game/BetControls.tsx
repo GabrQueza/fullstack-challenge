@@ -6,11 +6,13 @@ import { useAxiosAuth } from "../../hooks/useAxiosAuth";
 import { useSession, signIn } from "next-auth/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useAudioEffects } from "../../hooks/useAudioEffects";
 
 export function BetControls() {
   const { data: session, status: authStatus } = useSession();
   const axios = useAxiosAuth();
   const queryClient = useQueryClient();
+  const { playBetSound, playCashoutSound } = useAudioEffects();
   
   const [amount, setAmount] = useState(10);
   const [loading, setLoading] = useState(false);
@@ -36,6 +38,7 @@ export function BetControls() {
       await axios.post("/games/bet", { amount: amountInCents });
       addBet({ userId, amount: amountInCents });
       queryClient.invalidateQueries({ queryKey: ['wallet'] });
+      playBetSound();
       toast.success(`Aposta de R$ ${amount.toFixed(2)} realizada!`);
     } catch (error: any) {
       const message = error.response?.data?.message || 'Erro ao realizar aposta';
@@ -58,6 +61,7 @@ export function BetControls() {
       setLoading(true);
       const res = await axios.post("/games/bet/cashout");
       const amountWon = res.data?.amountWon;
+      playCashoutSound();
       if (amountWon) {
         toast.success(`Cashout de R$ ${(amountWon / 100).toFixed(2)} realizado!`);
       } else {

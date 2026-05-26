@@ -102,6 +102,20 @@ export function ProvablyFairModal({ round, open, onOpenChange }: ProvablyFairMod
                 garantindo que o resultado não foi manipulado.
               </p>
             </div>
+
+            {/* Math Formula */}
+            <div className="bg-zinc-950/50 border border-zinc-800 rounded-lg p-3 text-xs text-zinc-400 leading-relaxed">
+              <p className="font-semibold text-zinc-300 mb-1">Cálculo da Curva:</p>
+              <p className="mb-2">
+                O multiplicador do gráfico sobe de forma exponencial de acordo com a fórmula do Game Engine:
+              </p>
+              <div className="bg-zinc-900 rounded p-2 text-center border border-zinc-800 mb-2 font-mono text-emerald-400 text-[10px] sm:text-xs">
+                Multiplicador = E ^ (0.00006 × tempo_em_ms)
+              </div>
+              <p>
+                O frontend e o backend utilizam a mesma constante matemática para calcular e animar o gráfico perfeitamente sincronizado com os eventos do servidor.
+              </p>
+            </div>
           </div>
         ) : (
           <div className="text-center text-zinc-500 py-8">

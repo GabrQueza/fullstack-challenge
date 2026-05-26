@@ -19,6 +19,12 @@ plugins:
       credentials: true
       preflight_continue: false
 
+  - name: rate-limiting
+    config:
+      minute: 60
+      policy: local
+      fault_tolerant: true
+
 services:
   - name: games-service
     url: http://games:4001

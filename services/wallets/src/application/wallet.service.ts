@@ -1,4 +1,5 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import * as crypto from 'crypto';
 import type { IWalletRepository } from '../domain/wallet.repository.interface';
 import { WALLET_REPOSITORY } from '../domain/wallet.repository.interface';
 import { Wallet } from '../domain/wallet.entity';
@@ -22,9 +23,10 @@ export class WalletService {
   }
 
   async getWallet(userId: string): Promise<Wallet> {
-    const wallet = await this.walletRepository.findByUserId(userId);
+    let wallet = await this.walletRepository.findByUserId(userId);
     if (!wallet) {
-      throw new NotFoundException('Wallet not found');
+      wallet = new Wallet(crypto.randomUUID(), userId, 1000000n);
+      await this.walletRepository.save(wallet);
     }
     return wallet;
   }
