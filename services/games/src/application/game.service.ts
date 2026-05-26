@@ -3,6 +3,7 @@ import { GameEngineService } from './game-engine.service';
 import { RabbitMQPublisherService } from '../infrastructure/rabbitmq/rabbitmq-publisher.service';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { Bet } from '../domain/bet.entity';
+import { Round } from '../domain/round.entity';
 import { GameGateway } from '../presentation/gateways/game.gateway';
 
 @Injectable()
@@ -65,5 +66,21 @@ export class GameService {
     });
 
     return { success: true, multiplier: currentMultiplier, amountWon };
+  }
+
+  async getHistory() {
+    return this.em.find(
+      'Round',
+      { status: 'CRASHED' },
+      { orderBy: { createdAt: 'DESC' }, limit: 20 }
+    );
+  }
+
+  async getMyBets(userId: string, limit = 20, offset = 0) {
+    return this.em.find(
+      'Bet',
+      { userId },
+      { orderBy: { createdAt: 'DESC' }, limit, offset }
+    );
   }
 }

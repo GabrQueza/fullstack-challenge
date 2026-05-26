@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
 import { io } from 'socket.io-client';
 import { useGameStore } from '../store/useGameStore';
+import { useQueryClient } from '@tanstack/react-query';
 
 export const useSocket = () => {
   const { setGameState, setTick, setCrash, addBet, updateBet } = useGameStore();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const socketUrl = process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:4001';
@@ -16,6 +18,7 @@ export const useSocket = () => {
         status: data.status,
         roundId: data.roundId,
         timeRemaining: data.timeRemaining || null,
+        serverSeedHash: data.serverSeedHash || null,
         multiplier: data.status === 'BETTING' ? 1.0 : useGameStore.getState().multiplier,
         crashPoint: data.status === 'BETTING' ? null : useGameStore.getState().crashPoint,
         bets: data.status === 'BETTING' ? [] : useGameStore.getState().bets,
@@ -36,10 +39,11 @@ export const useSocket = () => {
 
     socket.on('game.betWon', (data: { userId: string, multiplier: number, amount: number }) => {
       updateBet(data.userId, data.multiplier);
+      queryClient.invalidateQueries({ queryKey: ['wallet'] });
     });
 
     return () => {
       socket.disconnect();
     };
-  }, [setGameState, setTick, setCrash, addBet, updateBet]);
+  }, [setGameState, setTick, setCrash, addBet, updateBet, queryClient]);
 };

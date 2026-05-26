@@ -44,9 +44,19 @@ export class GameController {
     }
   }
 
+  @Get('rounds/history')
+  async getHistory() {
+    try {
+      return await this.gameService.getHistory();
+    } catch (err) {
+      console.error('ERROR in getHistory:', err);
+      throw err;
+    }
+  }
+
   @Get('rounds/:roundId/verify')
   async verifyRound(@Param('roundId') roundId: string) {
-    const round = await this.em.findOne(Round, roundId);
+    const round: any = await this.em.findOne('Round', roundId);
     if (!round) throw new BadRequestException('Round not found');
 
     if (round.status !== 'CRASHED') {
@@ -60,6 +70,15 @@ export class GameController {
       clientSeed: ProvablyFairService.CLIENT_SEED,
       crashPoint: round.crashPoint,
     };
+  }
+
+  @Get('bets/me')
+  @UseGuards(JwtAuthGuard)
+  async getMyBets(@Req() req: any) {
+    const userId = req.user?.id;
+    if (!userId) throw new BadRequestException('User ID not found in token');
+    
+    return this.gameService.getMyBets(userId);
   }
 
   @Get('health')

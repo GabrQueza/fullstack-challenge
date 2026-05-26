@@ -4,10 +4,13 @@ import { useState } from "react";
 import { useGameStore } from "../../store/useGameStore";
 import { useAxiosAuth } from "../../hooks/useAxiosAuth";
 import { useSession, signIn } from "next-auth/react";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export function BetControls() {
   const { data: session, status: authStatus } = useSession();
   const axios = useAxiosAuth();
+  const queryClient = useQueryClient();
   
   const [amount, setAmount] = useState(10);
   const [loading, setLoading] = useState(false);
@@ -32,8 +35,19 @@ export function BetControls() {
       const amountInCents = Math.round(amount * 100);
       await axios.post("/games/bet", { amount: amountInCents });
       addBet({ userId, amount: amountInCents });
+      queryClient.invalidateQueries({ queryKey: ['wallet'] });
+      toast.success(`Aposta de R$ ${amount.toFixed(2)} realizada!`);
     } catch (error: any) {
-      console.error(error.response?.data);
+      const message = error.response?.data?.message || 'Erro ao realizar aposta';
+      if (error.response?.status === 400) {
+        if (message.toLowerCase().includes('saldo') || message.toLowerCase().includes('insufficient')) {
+          toast.error('Saldo insuficiente!');
+        } else {
+          toast.error(message);
+        }
+      } else {
+        toast.error(message);
+      }
     } finally {
       setLoading(false);
     }
@@ -42,9 +56,17 @@ export function BetControls() {
   const handleCashOut = async () => {
     try {
       setLoading(true);
-      await axios.post("/games/bet/cashout");
+      const res = await axios.post("/games/bet/cashout");
+      const amountWon = res.data?.amountWon;
+      if (amountWon) {
+        toast.success(`Cashout de R$ ${(amountWon / 100).toFixed(2)} realizado!`);
+      } else {
+        toast.success('Cashout realizado com sucesso!');
+      }
+      queryClient.invalidateQueries({ queryKey: ['wallet'] });
     } catch (error: any) {
-      console.error(error.response?.data);
+      const message = error.response?.data?.message || 'Erro ao realizar cashout';
+      toast.error(message);
     } finally {
       setLoading(false);
     }

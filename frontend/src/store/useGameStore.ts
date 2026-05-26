@@ -14,6 +14,7 @@ interface GameStore {
   multiplier: number;
   timeRemaining: number | null;
   crashPoint: number | null;
+  serverSeedHash: string | null;
   bets: Bet[];
   setGameState: (state: Partial<GameStore>) => void;
   setTick: (multiplier: number) => void;
@@ -28,6 +29,7 @@ export const useGameStore = create<GameStore>((set) => ({
   multiplier: 1.0,
   timeRemaining: null,
   crashPoint: null,
+  serverSeedHash: null,
   bets: [],
   setGameState: (state) => set((prev) => {
     if (state.status === 'BETTING' && prev.status !== 'BETTING') {

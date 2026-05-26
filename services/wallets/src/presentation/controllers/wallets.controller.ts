@@ -25,7 +25,18 @@ export class WalletsController {
   async getMe(@Req() req: any) {
     const userId = req.user?.id;
     if (!userId) throw new BadRequestException('User ID not found in token');
-    const wallet = await this.walletService.getWallet(userId);
+    
+    let wallet;
+    try {
+      wallet = await this.walletService.getWallet(userId);
+    } catch (error: any) {
+      if (error.status === 404 || error.message === 'Wallet not found') {
+        wallet = await this.walletService.createWallet(userId);
+      } else {
+        throw error;
+      }
+    }
+    
     return {
       id: wallet.id,
       userId: wallet.userId,

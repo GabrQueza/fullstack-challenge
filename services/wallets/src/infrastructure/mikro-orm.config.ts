@@ -7,6 +7,7 @@ const config: Options = {
   entities: [WalletSchema],
   debug: process.env.NODE_ENV !== 'production',
   extensions: [SchemaGenerator],
+  allowGlobalContext: true,
 };
 
 export default config;

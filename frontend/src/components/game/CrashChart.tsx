@@ -8,6 +8,7 @@ export function CrashChart() {
   const status = useGameStore((s) => s.status);
   const multiplier = useGameStore((s) => s.multiplier);
   const initialTimeRemaining = useGameStore((s) => s.timeRemaining);
+  const serverSeedHash = useGameStore((s) => s.serverSeedHash);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
 
   useEffect(() => {
@@ -93,7 +94,17 @@ export function CrashChart() {
   }, [status]); 
 
   return (
-    <div className="relative w-full h-96 bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden flex items-center justify-center">
+    <div className="relative w-full h-96 bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden flex flex-col items-center justify-center">
+      
+      {status === "BETTING" && serverSeedHash && (
+        <div className="absolute top-4 left-4 right-4 flex justify-center z-20">
+          <div className="bg-zinc-950/80 border border-zinc-800 backdrop-blur-sm rounded-lg px-3 py-2 flex items-center gap-2 max-w-full overflow-hidden">
+            <span className="text-zinc-500 text-xs font-bold uppercase shrink-0">Provably Fair (Seed Hash)</span>
+            <span className="text-zinc-300 text-xs font-mono truncate">{serverSeedHash}</span>
+          </div>
+        </div>
+      )}
+
       <canvas
         ref={canvasRef}
         width={800}
