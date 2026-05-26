@@ -16,7 +16,8 @@ export class WalletRepository implements IWalletRepository {
   }
 
   async save(wallet: Wallet): Promise<void> {
-    // In MikroORM, calling flush will commit the unit of work to the database.
-    await this.em.persistAndFlush(wallet);
+    this.em.persist(wallet);
+    await this.em.flush();
   }
 }
+
