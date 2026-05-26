@@ -88,8 +88,8 @@ export function CrashHistory() {
                 );
               })}
             </CarouselContent>
-            <CarouselPrevious className="absolute -left-7 h-6 w-6 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-zinc-700" />
-            <CarouselNext className="absolute -right-7 h-6 w-6 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-zinc-700" />
+            <CarouselPrevious className="absolute -left-7 h-6 w-6 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-zinc-700 active:translate-y-0" />
+            <CarouselNext className="absolute -right-7 h-6 w-6 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-zinc-700 active:translate-y-0" />
           </Carousel>
         </div>
       </div>
